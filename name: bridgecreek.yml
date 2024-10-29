@@ -1,0 +1,29 @@
+name: bridgecreek
+channels:
+  - pytorch
+  - nvidia
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.10
+  - pip
+  - cudatoolkit=11.8
+  - pytorch=2.1.1
+  - torchvision
+  - torchaudio
+  - numpy
+  - pandas
+  - opencv
+  - ffmpeg
+  - pip:
+    - fastapi
+    - uvicorn
+    - python-multipart
+    - mediapipe
+    - prometheus-client
+    - pydantic-settings
+    - python-magic
+    - moviepy
+    - pytest
+    - pytest-asyncio
+    - httpx
