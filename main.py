@@ -1,6 +1,5 @@
 from fastapi import FastAPI
-from api.endpoints import router
-
+from beavervision.api.endpoints import router
 app = FastAPI(
     title="Lip Sync API",
     description="API for real-time lip synchronization with facial expressions",
