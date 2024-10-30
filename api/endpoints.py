@@ -2,7 +2,7 @@ from fastapi import APIRouter, File, UploadFile, Form, HTTPException
 from fastapi.responses import FileResponse
 import tempfile
 from pathlib import Path
-from ..core.wav2lip_interface import Wav2LipPredictor
+from beavervision.core.wav2lip_interface import Wav2LipPredictor
 from ..core.tts_interface import TextToSpeech, TTSError
 from ..core.face_enhancer import FaceExpressionEnhancer
 from ..utils.validators import validate_video
