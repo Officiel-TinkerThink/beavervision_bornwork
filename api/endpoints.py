@@ -1,13 +1,15 @@
+import sys
+sys.path.insert(0, '/home/amdal/lab/beavervision')
 from fastapi import APIRouter, File, UploadFile, Form, HTTPException
 from fastapi.responses import FileResponse
 import tempfile
 from pathlib import Path
-from beavervision.core.wav2lip_interface import Wav2LipPredictor
-from  beavervision.core.tts_interface import TextToSpeech, TTSError
-from  beavervision.core.face_enhancer import FaceExpressionEnhancer
-from  beavervision.utils.validators import validate_video
-from beavervision.utils.logger import setup_logger
-from  beavervision.utils.monitoring import REQUESTS_TOTAL, monitor_timing
+from .core.wav2lip_interface import Wav2LipPredictor
+from .core.tts_interface import TextToSpeech, TTSError
+from .core.face_enhancer import FaceExpressionEnhancer
+from .utils.validators import validate_video
+from .utils.logger import setup_logger
+from .utils.monitoring import REQUESTS_TOTAL, monitor_timing
 
 router = APIRouter()
 logger = setup_logger(__name__)
