@@ -1,5 +1,3 @@
-import sys
-sys.path.insert(0, '/home/amdal/lab/beavervision')
 from fastapi import APIRouter, File, UploadFile, Form, HTTPException
 from fastapi.responses import FileResponse
 import tempfile
