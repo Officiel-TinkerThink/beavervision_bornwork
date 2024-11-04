@@ -6,9 +6,9 @@ router = APIRouter()
 router.include_router(endpoints.router)
 
 # beavervision/core/__init__.py
-from .wav2lip_interface import Wav2LipPredictor
-from .tts_interface import TextToSpeech
-from .face_enhancer import FaceExpressionEnhancer
+from beavervision.core.wav2lip_interface import Wav2LipPredictor
+from beavervision.core.tts_interface import TextToSpeech
+from beavervision.core.face_enhancer import FaceExpressionEnhancer
 
 __all__ = [
     'Wav2LipPredictor',
