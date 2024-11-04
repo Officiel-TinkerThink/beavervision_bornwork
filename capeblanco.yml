@@ -5,12 +5,17 @@ channels:
   - conda-forge
   - defaults
 dependencies:
+  - python=3.10
+  - pip
+  - cudatoolkit=11.8
+  - pytorch=2.1.1
   - torchvision
   - torchaudio
   - numpy
   - pandas
   - opencv
   - ffmpeg
+  - libmagic
   - pip:
     - fastapi
     - uvicorn[standard]
@@ -18,7 +23,7 @@ dependencies:
     - mediapipe
     - prometheus-client
     - pydantic-settings
-    - python-magic-bin
+    - python-magic
     - moviepy
     - pytest
     - pytest-asyncio
@@ -27,6 +32,5 @@ dependencies:
     - passlib[bcrypt]
     - aiofiles
     - loguru
-    - python-magic
     - requests
     - tensorboard
