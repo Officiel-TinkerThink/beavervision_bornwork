@@ -23,4 +23,4 @@ class FaceExpressionEnhancer:
         Returns:
             str: Path to video with enhanced facial expressions
         """
-        return "path_to_enhanced_video.mp4"
+        return "enhanced_video.mp4"

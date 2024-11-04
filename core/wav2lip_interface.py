@@ -22,4 +22,4 @@ class Wav2LipPredictor:
         Returns:
             str: Path to processed video with synchronized lips
         """
-        return "path_to_processed_video.mp4"
+        return "processed_video.mp4"
