@@ -1,7 +1,7 @@
 # beavervision/utils/monitoring.py
 import time
 from functools import wraps
-from prometheus_client import Counter, Histogram, start_http_server
+from prometheus_client import Counter, Histogram, Gauge, start_http_server
 from beavervision.config import settings
 from beavervision.utils.logger import setup_logger
 
