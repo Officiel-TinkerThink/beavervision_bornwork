@@ -1,24 +1,33 @@
-from fastapi import APIRouter, File, UploadFile, Form, HTTPException
-from fastapi.responses import FileResponse
+# beavervision/api/endpoints.py
+import torch
 import tempfile
 from pathlib import Path
+from fastapi import APIRouter, File, UploadFile, Form, HTTPException
+from fastapi.responses import FileResponse
+
+# Internal imports
 from beavervision.core.wav2lip_interface import Wav2LipPredictor
 from beavervision.core.tts_interface import TextToSpeech, TTSError
 from beavervision.core.face_enhancer import FaceExpressionEnhancer
 from beavervision.utils.validators import validate_video
 from beavervision.utils.logger import setup_logger
-from beavervision.utils.monitoring import REQUESTS_TOTAL, monitor_timing
+from beavervision.utils.monitoring import (
+    REQUESTS_TOTAL,
+    ERROR_COUNTER,
+    monitor_timing
+)
+from beavervision.config import settings
 
 router = APIRouter()
 logger = setup_logger(__name__)
 
 class LipSyncPipeline:
     def __init__(self):
-        self.settings = Settings()
+        self.settings = settings
         self.device = torch.device(self.settings.CUDA_DEVICE)
-        self.wav2lip = Wav2LipPredictor(device=self.device)
+        self.wav2lip = Wav2LipPredictor(device=str(self.device))
         self.tts = TextToSpeech()
-        self.face_enhancer = FaceExpressionEnhancer(device=self.device)
+        self.face_enhancer = FaceExpressionEnhancer(device=str(self.device))
 
     @monitor_timing(process_type="full_pipeline")
     async def process_video(self, input_video_path: str, text: str) -> str:
@@ -46,6 +55,7 @@ async def create_lipsync(
     video: UploadFile = File(...),
     text: str = Form(...)
 ):
+    temp_video_path = None
     try:
         logger.info(f"Processing request for video: {video.filename}")
         REQUESTS_TOTAL.labels(endpoint="/lipsync", status="started").inc()
@@ -70,5 +80,5 @@ async def create_lipsync(
         
     finally:
         # Cleanup temporary files
-        if temp_video_path.exists():
+        if temp_video_path and temp_video_path.exists():
             temp_video_path.unlink()

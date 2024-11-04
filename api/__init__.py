@@ -1,8 +1,17 @@
-# app/api/__init__.py
+# beavervision/api/__init__.py
 from fastapi import APIRouter
+from . import endpoints
 
-# Create a router instance that will be imported by main.py
 router = APIRouter()
+router.include_router(endpoints.router)
 
-# Import all endpoints to register them with the router
-from .endpoints import *
+# beavervision/core/__init__.py
+from .wav2lip_interface import Wav2LipPredictor
+from .tts_interface import TextToSpeech
+from .face_enhancer import FaceExpressionEnhancer
+
+__all__ = [
+    'Wav2LipPredictor',
+    'TextToSpeech',
+    'FaceExpressionEnhancer'
+]

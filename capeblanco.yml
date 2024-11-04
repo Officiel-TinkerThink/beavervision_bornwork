@@ -1,4 +1,4 @@
-name: bridgecreek
+name: capeblanco
 channels:
   - pytorch
   - nvidia
@@ -13,13 +13,20 @@ dependencies:
   - ffmpeg
   - pip:
     - fastapi
-    - uvicorn
+    - uvicorn[standard]
     - python-multipart
     - mediapipe
     - prometheus-client
     - pydantic-settings
-    - python-magic
+    - python-magic-bin
     - moviepy
     - pytest
     - pytest-asyncio
     - httpx
+    - python-jose[cryptography]
+    - passlib[bcrypt]
+    - aiofiles
+    - loguru
+    - python-magic
+    - requests
+    - tensorboard
