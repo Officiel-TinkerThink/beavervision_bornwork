@@ -1,6 +1,6 @@
 # BeaverVision: A Real-Time Pipeline for Lip Synchronization and Facial Expression Enhancement
 
-**Ahmed Ali**  
+**Ahmed Ali (Lord Amdal)**  
 Beaverhand Lab  
 *Contact: amdal@beaverhand.com*
 
@@ -135,4 +135,4 @@ BeaverVision demonstrates significant improvements in the field of automated vid
 The complete implementation of BeaverVision is available at: https://github.com/beaverhand/beavervision
 
 ## Acknowledgments
-We thank the Beaverhand Lab for supporting this research and providing computational resources. Special thanks to the open-source community for their contributions to the underlying technologies used in this project.
+We thank the Google Cloud for Startup for supporting this research and providing computational resources. Special thanks to the open-source community for their contributions to the underlying technologies used in this project.
