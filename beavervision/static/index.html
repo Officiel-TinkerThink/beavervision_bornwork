@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeaverVision Lip Sync Tester</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        #preview-video {
+            max-width: 100%;
+            max-height: 400px;
+        }
+        #result-video {
+            max-width: 100%;
+            max-height: 400px;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold mb-8">BeaverVision Lip Sync Tester</h1>
+        
+        <!-- Upload Form -->
+        <div class="bg-white p-6 rounded-lg shadow-md mb-8">
+            <form id="uploadForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Select Video (mp4/avi)</label>
+                    <input type="file" 
+                           id="videoInput" 
+                           accept="video/mp4,video/avi"
+                           class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+                           required>
+                    <video id="preview-video" class="mt-4" controls></video>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Enter Text</label>
+                    <textarea id="textInput" 
+                             class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+                             required
+                             rows="3"></textarea>
+                </div>
+                
+                <button type="submit" 
+                        class="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600">
+                    Generate Lip Sync
+                </button>
+            </form>
+        </div>
+        
+        <!-- Result Section -->
+        <div id="result" class="bg-white p-6 rounded-lg shadow-md hidden">
+            <h2 class="text-xl font-semibold mb-4">Result</h2>
+            <video id="result-video" controls></video>
+            <div id="download-link" class="mt-4"></div>
+        </div>
+        
+        <!-- Progress/Status -->
+        <div id="status" class="mt-4 text-center hidden">
+            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div>
+            <p class="text-gray-600 mt-2">Processing video...</p>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('videoInput').addEventListener('change', function(e) {
+            const video = document.getElementById('preview-video');
+            const file = e.target.files[0];
+            video.src = URL.createObjectURL(file);
+        });
+
+        document.getElementById('uploadForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const status = document.getElementById('status');
+            const result = document.getElementById('result');
+            const resultVideo = document.getElementById('result-video');
+            const downloadLink = document.getElementById('download-link');
+            
+            status.classList.remove('hidden');
+            result.classList.add('hidden');
+            
+            const formData = new FormData();
+            formData.append('video', document.getElementById('videoInput').files[0]);
+            formData.append('text', document.getElementById('textInput').value);
+            
+            try {
+                const response = await fetch('/api/v1/lipsync', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const blob = await response.blob();
+                const videoUrl = URL.createObjectURL(blob);
+                resultVideo.src = videoUrl;
+                
+                // Create download link
+                const a = document.createElement('a');
+                a.href = videoUrl;
+                a.download = 'lipsync_result.mp4';
+                a.className = 'bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-600 inline-block';
+                a.textContent = 'Download Result';
+                downloadLink.innerHTML = '';
+                downloadLink.appendChild(a);
+                
+                result.classList.remove('hidden');
+            } catch (error) {
+                alert('Error: ' + error.message);
+            } finally {
+                status.classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+</html>

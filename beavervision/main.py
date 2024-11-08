@@ -1,27 +1,37 @@
-# main.py
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+from pathlib import Path
+
 from beavervision.api import router
 from beavervision.utils.monitoring import init_monitoring
 from beavervision.config import settings
 
-# Initialize the FastAPI application
 app = FastAPI(
-    title=settings.PROJECT_NAME,
-    description="API for real-time lip synchronization with facial expressions",
+    title="BeaverVision API",
+    description="Real-time lip synchronization API",
     version="1.0.0"
 )
 
-# Initialize monitoring
-init_monitoring()
+# CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Static files setup
+static_dir = Path(__file__).parent / "static"
+static_dir.mkdir(exist_ok=True)
+app.mount("/static", StaticFiles(directory=str(static_dir)), name="static")
+
+# Serve test page at /test
+@app.get("/test")
+async def test_page():
+    return FileResponse(str(static_dir / "test.html"))
 
 # Include API router
 app.include_router(router, prefix=settings.API_V1_STR)
-
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(
-        "main:app",
-        host="0.0.0.0",
-        port=8000,
-        reload=True  # Enable auto-reload during development
-    )
