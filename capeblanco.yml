@@ -34,3 +34,6 @@ dependencies:
     - loguru
     - requests
     - tensorboard
+    - TTS
+    - gdown
+    - tqdm
