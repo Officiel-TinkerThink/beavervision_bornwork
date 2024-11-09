@@ -6,11 +6,11 @@ import torch
 from pathlib import Path
 import logging
 
-# Fix the imports to use relative imports since we're inside the beavervision package
-from .api import router
-from .utils.monitoring import init_monitoring
-from .utils.logger import setup_logger
-from .config.settings import settings
+# Fix imports to match the correct format
+from beavervision.api import router
+from beavervision.utils.monitoring import init_monitoring
+from beavervision.config import settings
+from beavervision.utils.logger import setup_logger
 
 logger = setup_logger(__name__)
 
