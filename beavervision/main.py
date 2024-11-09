@@ -2,11 +2,11 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse
+from fastapi.routing import APIRoute
 import torch
 from pathlib import Path
 import logging
 
-# Fix imports to match the correct format
 from beavervision.api import router
 from beavervision.utils.monitoring import init_monitoring
 from beavervision.config import settings
@@ -100,5 +100,10 @@ async def startup_event():
     logger.info("Starting BeaverVision API")
     logger.info(f"Static directory: {STATIC_DIR}")
     logger.info("Registered routes:")
+    
+    # Log only API routes, excluding static files and mounted applications
     for route in app.routes:
-        logger.info(f"Route: {route.path} [{', '.join(route.methods)}]")
+        if isinstance(route, APIRoute):
+            logger.info(f"Route: {route.path} [{', '.join(route.methods)}]")
+        else:
+            logger.info(f"Mount: {route.path}")
