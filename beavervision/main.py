@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse, HTMLResponse
+from fastapi.responses import HTMLResponse
 import torch
 from pathlib import Path
 
@@ -33,19 +33,10 @@ app.add_middleware(
 # Initialize monitoring
 init_monitoring()
 
-# Create and mount static directory
-static_dir = Path(__file__).parent / "static"
-static_dir.mkdir(exist_ok=True)
-app.mount("/static", StaticFiles(directory=str(static_dir)), name="static")
-
 @app.get("/", response_class=HTMLResponse)
 async def root():
-    """Serve the test page."""
-    try:
-        test_page = static_dir / "test.html"
-        if not test_page.exists():
-            # Create test.html if it doesn't exist
-            test_page.write_text("""
+    """Serve the test page directly."""
+    return """
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -215,11 +206,7 @@ async def root():
     </script>
 </body>
 </html>
-            """)
-        return FileResponse(test_page)
-    except Exception as e:
-        logger.error(f"Error serving test page: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+    """
 
 @app.get("/health")
 async def health_check():
@@ -235,9 +222,4 @@ app.include_router(router, prefix=settings.API_V1_STR)
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(
-        "main:app",
-        host="0.0.0.0",
-        port=8000,
-        reload=True
-    )
+    uvicorn.run(app, host="0.0.0.0", port=8000)
