@@ -30,80 +30,93 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Debug middleware to log all requests
+# Get the directory containing main.py
+BASE_DIR = Path(__file__).resolve().parent
+STATIC_DIR = BASE_DIR / "static"
+
+# Enhanced static directory initialization
+def init_static_directory():
+    """Initialize static directory and log its contents"""
+    logger.info(f"Initializing static directory at: {STATIC_DIR}")
+    
+    # Create static directory if it doesn't exist
+    STATIC_DIR.mkdir(exist_ok=True)
+    
+    # Log all files in static directory
+    logger.info("Static directory contents:")
+    for file_path in STATIC_DIR.glob("*"):
+        logger.info(f"- {file_path.name}")
+    
+    return STATIC_DIR.exists()
+
+# Enhanced debug middleware
 @app.middleware("http")
-async def log_requests(request: Request, call_next):
+async def debug_middleware(request: Request, call_next):
     logger.info(f"Incoming request: {request.method} {request.url.path}")
+    logger.info(f"Request headers: {request.headers}")
+    logger.info(f"Static directory exists: {STATIC_DIR.exists()}")
+    
     try:
         response = await call_next(request)
         logger.info(f"Response status: {response.status_code}")
+        if response.status_code == 404:
+            logger.error(f"404 Not Found: {request.url.path}")
+            logger.error(f"Attempted to access file: {STATIC_DIR / request.url.path.lstrip('/')}")
         return response
     except Exception as e:
-        logger.error(f"Request failed: {str(e)}")
+        logger.error(f"Request failed: {str(e)}", exc_info=True)
         return JSONResponse(
             status_code=500,
             content={"detail": str(e)}
         )
 
-# Get the directory containing main.py
-BASE_DIR = Path(__file__).resolve().parent
-STATIC_DIR = BASE_DIR / "static"
-
-# Ensure static directory exists
-STATIC_DIR.mkdir(exist_ok=True)
-
-# Mount static files
-app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
-
-@app.get("/")
-async def root():
-    """Serve the main page."""
-    logger.info(f"Serving index.html from {STATIC_DIR / 'index.html'}")
-    if not (STATIC_DIR / "index.html").exists():
-        logger.error("index.html not found")
-        return JSONResponse(
-            status_code=404,
-            content={"detail": "index.html not found"}
-        )
-    return FileResponse(str(STATIC_DIR / "index.html"))
+# Initialize static directory before mounting
+if init_static_directory():
+    # Mount static files with explicit static directory check
+    app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
+else:
+    logger.error("Failed to initialize static directory")
 
 @app.get("/test")
 async def test_page():
-    """Serve the test page."""
-    logger.info(f"Serving test.html from {STATIC_DIR / 'test.html'}")
-    if not (STATIC_DIR / "test.html").exists():
-        logger.error("test.html not found")
+    """Serve the test page with enhanced error handling"""
+    test_file_path = STATIC_DIR / "test.html"
+    logger.info(f"Attempting to serve test.html from: {test_file_path}")
+    
+    if not STATIC_DIR.exists():
+        logger.error(f"Static directory does not exist: {STATIC_DIR}")
+        return JSONResponse(
+            status_code=500,
+            content={"detail": "Static directory not found"}
+        )
+    
+    if not test_file_path.exists():
+        logger.error(f"test.html not found at: {test_file_path}")
         return JSONResponse(
             status_code=404,
-            content={"detail": "test.html not found"}
+            content={"detail": f"test.html not found at {test_file_path}"}
         )
-    return FileResponse(str(STATIC_DIR / "test.html"))
+    
+    logger.info("Successfully located test.html")
+    return FileResponse(str(test_file_path))
 
+# Enhanced health check endpoint
 @app.get("/health")
 async def health_check():
-    """Health check endpoint."""
+    """Enhanced health check endpoint with detailed static file information"""
+    static_files = list(STATIC_DIR.glob("*")) if STATIC_DIR.exists() else []
+    
     return {
         "status": "healthy",
         "cuda_available": torch.cuda.is_available(),
         "cuda_device": torch.cuda.get_device_name(0) if torch.cuda.is_available() else "CPU",
-        "static_dir_exists": STATIC_DIR.exists(),
-        "index_html_exists": (STATIC_DIR / "index.html").exists(),
-        "test_html_exists": (STATIC_DIR / "test.html").exists()
+        "static_dir": {
+            "path": str(STATIC_DIR),
+            "exists": STATIC_DIR.exists(),
+            "files": [str(f.name) for f in static_files]
+        },
+        "test_html": {
+            "path": str(STATIC_DIR / "test.html"),
+            "exists": (STATIC_DIR / "test.html").exists()
+        }
     }
-
-# Include API router
-app.include_router(router, prefix=settings.API_V1_STR)
-
-# Print all registered routes at startup
-@app.on_event("startup")
-async def startup_event():
-    logger.info("Starting BeaverVision API")
-    logger.info(f"Static directory: {STATIC_DIR}")
-    logger.info("Registered routes:")
-    
-    # Log only API routes, excluding static files and mounted applications
-    for route in app.routes:
-        if isinstance(route, APIRoute):
-            logger.info(f"Route: {route.path} [{', '.join(route.methods)}]")
-        else:
-            logger.info(f"Mount: {route.path}")
