@@ -1,4 +1,3 @@
-# run.py
 import uvicorn
 from beavervision.utils.logger import logger
 from beavervision.utils.monitoring import init_monitoring
@@ -14,7 +13,7 @@ def main():
         
         # Run the server
         uvicorn.run(
-            "beavervision.main:app",
+            "beavervision.main:app",  # Update this path
             host="0.0.0.0",
             port=8000,
             reload=True,

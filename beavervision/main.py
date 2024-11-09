@@ -6,10 +6,11 @@ import torch
 from pathlib import Path
 import logging
 
-from api import router
-from utils.monitoring import init_monitoring
-from utils.logger import setup_logger
-from config.settings import settings
+# Fix the imports to use relative imports since we're inside the beavervision package
+from .api import router
+from .utils.monitoring import init_monitoring
+from .utils.logger import setup_logger
+from .config.settings import settings
 
 logger = setup_logger(__name__)
 
@@ -50,17 +51,6 @@ STATIC_DIR = BASE_DIR / "static"
 
 # Ensure static directory exists
 STATIC_DIR.mkdir(exist_ok=True)
-
-# Save the HTML files if they don't exist
-if not (STATIC_DIR / "index.html").exists():
-    logger.info("Creating index.html")
-    with open(STATIC_DIR / "index.html", "w") as f:
-        f.write("""[Your index.html content here]""")
-
-if not (STATIC_DIR / "test.html").exists():
-    logger.info("Creating test.html")
-    with open(STATIC_DIR / "test.html", "w") as f:
-        f.write("""[Your test.html content here]""")
 
 # Mount static files
 app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
@@ -112,7 +102,3 @@ async def startup_event():
     logger.info("Registered routes:")
     for route in app.routes:
         logger.info(f"Route: {route.path} [{', '.join(route.methods)}]")
-
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
